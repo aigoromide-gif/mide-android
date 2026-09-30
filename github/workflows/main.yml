@@ -1,1 +1,44 @@
 
+name: Build Mide APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Unzip Mide project
+        run: |
+          mkdir mide-project
+          unzip -q Mide_Android_Project_v1.zip -d mide-project
+
+      - name: Find Android project
+        run: |
+          find mide-project -name gradlew -type f -print
+
+      - name: Build APK
+        run: |
+          PROJECT=$(dirname "$(find mide-project -name gradlew -type f | head -1)")
+          cd "$PROJECT"
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload Mide APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mide-APK
+          path: mide-project/**/build/outputs/apk/debug/*.apk
