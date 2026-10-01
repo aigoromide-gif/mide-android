@@ -27,16 +27,15 @@ jobs:
           mkdir mide-project
           unzip -q "$ZIP_FILE" -d mide-project
 
-      - name: Find Android project
-        run: |
-          find mide-project -name gradlew -type f -print
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.13'
 
       - name: Build APK
         run: |
-          PROJECT=$(dirname "$(find mide-project -name gradlew -type f | head -1)")
-          cd "$PROJECT"
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          cd mide-project/Mide
+          gradle assembleDebug
 
       - name: Upload Mide APK
         uses: actions/upload-artifact@v4
